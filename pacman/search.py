@@ -85,8 +85,24 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    stack = util.Stack()
+    visitedList = []
+    # coloca a estrutura inicial na pilha
+    stack.push((problem.getStartState(),[],0))
+    (state, toDirection, toCost) = stack.pop()
+    # coloca o estado na lista de visitados
+    visitedList.append(state)
+    # enquanto nao encontrar a resolucao
+    while not problem.isGoalState(state):
+        successors = problem.getSuccessors(state)
+        for son in successors:
+            # se o filho nao foi visitado, coloque-o na pilha e coloca o estado atual em visitados
+            if (not son[0] in visitedList) or (problem.isGoalState(son[0])):
+                stack.push((son[0],toDirection + [son[1]],toCost + son[2]))
+                visitedList.append(son[0])
+        (state, toDirection, toCost) = stack.pop()
+    return toDirection
 
 
 def breadthFirstSearch(problem):
@@ -95,14 +111,58 @@ def breadthFirstSearch(problem):
     DICA: Utilizar util.PriorityQueue
     *** YOUR CODE HERE ***
     """
-    util.raiseNotDefined()
+    fila = util.Queue()
+    visitedList = []
+    #coloque a estrutura inicial para a fila
+    fila.push((problem.getStartState(),[],0))
+    (state,toDirection,toCost) = fila.pop()
+    #coloque o ponto visitado na lista de pontos visitados
+    visitedList.append(state)
+
+    # se o filho nao foi visitado, coloque-o na fila e coloca o estado atual em visitados
+    while not problem.isGoalState(state): 
+        successors = problem.getSuccessors(state) 
+        for son in successors:
+            if not son[0] in visitedList: 
+                fila.push((son[0],toDirection + [son[1]],toCost + son[2]))
+                visitedList.append(son[0])
+        (state,toDirection,toCost) = fila.pop()
+
+    return toDirection
 
     
 def uniformCostSearch(problem):
     """Search the node of least total cost first.
     *** YOUR CODE HERE ***
     """
-    util.raiseNotDefined()
+    pQueue = util.PriorityQueue()
+    visitedList = []
+
+    #inicia a estrutura na fila colocando um peso 0 e coloca o primeiro valor na lista de visitados
+    pQueue.push((problem.getStartState(),[],0),0)
+    (state,toDirection,toCost) = pQueue.pop()
+    visitedList.append((state,toCost))
+
+    #adicione o estado se o sucessor nao foi visitado ou foi visitado mas com um custo menor que o anterir
+    while not problem.isGoalState(state):
+        successors = problem.getSuccessors(state)
+        for son in successors:
+            visitedExist = False
+            total_cost = toCost + son[2]
+            for (visitedState,visitedToCost) in visitedList:
+                # se o sucessor n tiver sido visitado e tiver custo menor que o anterior
+                if (son[0] == visitedState) and (total_cost >= visitedToCost):
+                    visitedExist = True # ponto reconhecido visitado
+                    break
+
+            if not visitedExist:
+                # empurre o estado com a prioriade do seu custo total e o coloca na lista de visitados
+                pQueue.push((son[0],toDirection + [son[1]],toCost + son[2]),toCost + son[2])
+                visitedList.append((son[0],toCost + son[2]))
+
+        (state,toDirection,toCost) = pQueue.pop()
+
+    return toDirection
 
 def nullHeuristic(state, problem=None):
     """
@@ -114,7 +174,33 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pQueue = util.PriorityQueue()
+    visitedList = []
+
+    # inicia o estado inicial com prioridade 0 e o coloca como visitado
+    pQueue.push((problem.getStartState(),[],0),0 + heuristic(problem.getStartState(),problem))
+    (state,toDirection,toCost) = pQueue.pop()
+    visitedList.append((state,toCost + heuristic(problem.getStartState(),problem)))
+
+    while not problem.isGoalState(state):
+        successors = problem.getSuccessors(state)
+        for son in successors:
+            visitedExist = False
+            total_cost = toCost + son[2]
+            for (visitedState,visitedToCost) in visitedList:
+                # se o sucessor n tiver sido visitado e tiver custo menor que o anterior
+                if (son[0] == visitedState) and (total_cost >= visitedToCost):
+                    visitedExist = True
+                    break
+            if not visitedExist:
+                # coloca-o na fila de prioridades com o custo total e o adiciona como visitado
+                pQueue.push((son[0],toDirection + [son[1]],toCost + son[2]),toCost + son[2] + heuristic(son[0],problem))
+                visitedList.append((son[0],toCost + son[2]))
+
+        (state,toDirection,toCost) = pQueue.pop()
+
+    return toDirection
+
 
 
 # Abbreviations
