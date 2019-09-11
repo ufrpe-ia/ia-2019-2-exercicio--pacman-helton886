@@ -98,7 +98,7 @@ def depthFirstSearch(problem):
         successors = problem.getSuccessors(state)
         for son in successors:
             # se o filho nao foi visitado, coloque-o na pilha e coloca o estado atual em visitados
-            if (not son[0] in visitedList) or (problem.isGoalState(son[0])):
+            if (not son[0] in visitedList):
                 stack.push((son[0],toDirection + [son[1]],toCost + son[2]))
                 visitedList.append(son[0])
         (state, toDirection, toCost) = stack.pop()
@@ -111,11 +111,11 @@ def breadthFirstSearch(problem):
     DICA: Utilizar util.PriorityQueue
     *** YOUR CODE HERE ***
     """
-    fila = util.Queue()
+    queue = util.Queue()
     visitedList = []
     #coloque a estrutura inicial para a fila
-    fila.push((problem.getStartState(),[],0))
-    (state,toDirection,toCost) = fila.pop()
+    queue.push((problem.getStartState(),[],0))
+    (state,toDirection,toCost) = queue.pop()
     #coloque o ponto visitado na lista de pontos visitados
     visitedList.append(state)
 
@@ -124,9 +124,9 @@ def breadthFirstSearch(problem):
         successors = problem.getSuccessors(state) 
         for son in successors:
             if not son[0] in visitedList: 
-                fila.push((son[0],toDirection + [son[1]],toCost + son[2]))
+                queue.push((son[0],toDirection + [son[1]],toCost + son[2]))
                 visitedList.append(son[0])
-        (state,toDirection,toCost) = fila.pop()
+        (state,toDirection,toCost) = queue.pop()
 
     return toDirection
 
